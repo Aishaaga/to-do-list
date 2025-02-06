@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" >
+    <title>To-Do List</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <link rel="icon" href="{{ url_for('static', filename='icone.ico') }}" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        /* Glowing background effect */
+        html {
+            background: linear-gradient(-45deg, #ff758c, #ff7eb3, #fd8c04, #ffc300);
+            background-size: 400% 400%;
+            animation: glowBackground 10s infinite alternate;
+        }
+
+        /* Style initial pour les tâches non complètes */
+        .task {
+            background-color: white;
+        }
+
+        /* Style lorsque la tâche est complétée */
+        .task.completed {
+            background-color: #aacc00;
+        }
+    </style>
+</head>
+<body>
+    <div style="height: auto;" class="container is-fluid   pt-6 ">
+        <div class="is-flex" style="text-align: right;">
+
+
+            <div class="is-flex is-justify-content-center is-align-items-center">
+                <h1 class="title has-text-centered"  style=" width: 300px; margin-top: 60px; margin-bottom: 40px;">To-Do List</h1>
+            </div>
+
+
+            
+        <div class="is-flex is-justify-content-center is-align-items-center">
+        <div id="task-alert" class="notification is-primary has-text-centered is-centered" style="margin-top: -30px;width: 300px; " data-message="{{ get_flashed_messages()[0] if get_flashed_messages() else '' }}">
+           
+            <span id="flash-message">{{ get_flashed_messages()[0] if get_flashed_messages() else '' }}</span>
+        </div>
+    </div>
+
+   
+</div>
+</div>
+        <!-- Formulaire pour ajouter une nouvelle tâche -->
+        <form action="/add" method="POST" class=" mx-6 mb-5 has-text-centered">
+            <div class="field">
+                <nav class="level">
+                    <div class="level-item has-text-centered">
+                        <input type="text" name="task" class="input mx-4 " placeholder="Enter a new task" required>
+                    </div>
+                    <div class="level-item has-text-centered">
+                        <input type="date" name="due_date" class="input mx-4" placeholder="Enter a date" value="{{ today }}" required>
+                    </div>
+                    <div class="level-item has-text-centered">
+                        <input type="time" name="task_time" class="input ml-4 " placeholder="Enter an hour" value="{{ now }}" required>
+                    </div>
+                    <div class="level-item ">
+                        <div class="select " >
+                            <select name="priority" style=" width: 300px;">
+                                <option value="1">🚩 Priorité 1 (Élevée)</option>
+                                <option value="2">🏴 Priorité 2</option>
+                                <option value="3">🏳️ Priorité 3</option>
+                                <option value="4" selected>🏁 Priorité 4 (Faible)</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                </nav>
+            </div>
+            <button type="submit" class="button is-primary">Add Task</button>
+        </form>
+
+        <!-- Liste des tâches -->
+        <ul>
+            {% for task in tasks %}
+            <li class="box task" id="task_{{ task[0] }}" >
+                <div class="columns is-mobile is-vcentered">
+                    <div class="column">
+                        {% if task[4] == 1 %}
+                        🚩 
+                        {% elif task[4] == 2 %}
+                        🏴 
+                        {% elif task[4] == 3 %}
+                        🏳️ 
+                         {% else %}
+                         🏁 
+ 
+                        {% endif %}
+                        {{ task[1] }}  
+                        {% if task[2] %}
+                            <br><small>📅 Due Date: {{ task[2] }}</small>
+                        {% endif %}
+                        {% if task[3] %}
+                            <br><small>⏰ Time: {{ task[3] }}</small>
+                        {% endif %}
+                    </div>
+                    <div class="column is-narrow">
+                        <label class="checkbox">
+                            <input type="checkbox" name="completed_{{ task[0] }}" id="completed_{{ task[0] }}" {% if task[5] %} checked {% endif %}
+    onclick="toggleCompleted({{ task[0] }})">
+
+    completed
+                        </label>
+                        <form action="/delete/{{ task[0] }}" method="POST" style="display: inline;">
+                            <button type="submit" class="button is-danger is-small">Delete</button>
+                        </form>
+                    </div>
+                </div>
+            </li>
+        {% endfor %}
+        
+        </ul>
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bulma@0.9.4/js/bulma.min.js"></script>
+
+    <script>
+        function toggleCompleted(taskId) {
+            var checkbox = document.getElementById('completed_' + taskId);
+            var taskElement = document.getElementById('task_' + taskId);
+    
+            // Change la couleur de fond de la tâche selon l'état de la case
+            if (checkbox.checked) {
+                taskElement.classList.add('completed');
+            } else {
+                taskElement.classList.remove('completed');
+            }
+    
+            // Envoi de l'état mis à jour au serveur via fetch
+            fetch('/update', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ task_id: taskId, completed: checkbox.checked })
+            });
+        }
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelectorAll('input[type="checkbox"]').forEach(function(checkbox) {
+                var taskElement = document.getElementById('task_' + checkbox.id.split('_')[1]);
+                if (checkbox.checked) {
+                    taskElement.classList.add('completed');
+                }
+            });
+        });
+    </script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var alertBox = document.getElementById("task-alert");
+        var message = alertBox.getAttribute("data-message");
+
+        // Si un message existe, l'afficher
+        if (message && message.trim() !== "") {
+            alertBox.style.display = "block";  // Affiche le message
+            // Cache le message après 3 secondes
+            setTimeout(function() {
+                alertBox.style.display = "none";
+            }, 3000);
+        }
+
+        // Optionnel : pour supprimer le message au clic sur la croix
+        var deleteBtn = document.getElementById("delete-alert");
+        deleteBtn.addEventListener("click", function() {
+            alertBox.style.display = "none";
+        });
+    });
+</script>
+    
+
+
+
+
+
+  
+
+
+    
+</body>
+</html>

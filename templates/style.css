@@ -1,0 +1,24 @@
+@import url("https://fonts.googleapis.com/css?family=Lato|Poppins|Kaushan+Script");
+
+
+/* Glowing background effect */
+body {
+    background: linear-gradient(-45deg, #ff758c, #ff7eb3, #fd8c04, #ffce00);
+    background-size: 400% 400%;
+    animation: glowBackground 10s infinite alternate;
+}
+
+@keyframes glowBackground {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+html{
+    height: 900px;
+}
+
+.checkbox input:checked + label {
+    color: green; /* Pour que le texte devienne vert lorsque la case est cochée */
+    font-weight: bold;
+}
