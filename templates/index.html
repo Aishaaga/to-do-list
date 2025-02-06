@@ -26,29 +26,25 @@
         .task.completed {
             background-color: #aacc00;
         }
+
+        #task-alert {
+    margin-bottom: 20px; /* Ajoute un espace entre le message et le titre */
+    width: 100%; /* Assure que le message occupe toute la largeur de son conteneur */
+}
     </style>
 </head>
 <body>
-    <div style="height: auto;" class="container is-fluid   pt-6 ">
-        <div class="is-flex" style="text-align: right;">
-
-
-            <div class="is-flex is-justify-content-center is-align-items-center">
-                <h1 class="title has-text-centered"  style=" width: 300px; margin-top: 60px; margin-bottom: 40px;">To-Do List</h1>
-            </div>
-
-
-            
-        <div class="is-flex is-justify-content-center is-align-items-center">
-        <div id="task-alert" class="notification is-primary has-text-centered is-centered" style="margin-top: -30px;width: 300px; " data-message="{{ get_flashed_messages()[0] if get_flashed_messages() else '' }}">
-           
+    <div class="has-text-centered">
+        <!-- Message flash -->
+        <div id="task-alert" class="notification is-primary is-centered" style="display: none;" data-message="{{ get_flashed_messages()[0] if get_flashed_messages() else '' }}">
             <span id="flash-message">{{ get_flashed_messages()[0] if get_flashed_messages() else '' }}</span>
         </div>
+    
+        <!-- Titre -->
+        <h1 style="margin-top: 100px; margin-bottom: 30px;" class="title has-text-centered">To-Do List</h1>
     </div>
-
-   
-</div>
-</div>
+    
+    
         <!-- Formulaire pour ajouter une nouvelle tâche -->
         <form action="/add" method="POST" class=" mx-6 mb-5 has-text-centered">
             <div class="field">
